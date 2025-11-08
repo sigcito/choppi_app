@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:choppi_app/config/app_config.dart';
 import 'package:choppi_app/services/cart_service.dart';
 import 'package:choppi_app/views/cart.dart';
+import 'package:choppi_app/views/product_detail.dart';
 
 class Product {
   final int id;
@@ -156,6 +157,16 @@ class _StoreProductsState extends State<StoreProducts> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CartWidget()),
+    );
+  }
+
+  void _navigateToProductDetail(Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ProductDetailView(productId: product.id, storeId: widget.storeId),
+      ),
     );
   }
 
@@ -463,6 +474,33 @@ class _StoreProductsState extends State<StoreProducts> {
                                       color: Colors.green.shade700,
                                     ),
                                     textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () =>
+                                        _navigateToProductDetail(product),
+                                    icon: const Icon(
+                                      Icons.visibility,
+                                      size: 16,
+                                    ),
+                                    label: const Text(
+                                      'Ver detalle',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 6,
+                                      ),
+                                      backgroundColor: Colors.blue.shade700,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
