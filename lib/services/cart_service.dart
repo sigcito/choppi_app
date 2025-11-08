@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class CartItem {
@@ -55,6 +56,28 @@ class CartItem {
 class CartService {
   static const String _cartKey = 'cart_items';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final ValueNotifier<int> cartItemCountNotifier = ValueNotifier<int>(0);
+  
+  static CartService? _instance;
+  
+  CartService._internal() {
+    _initializeCartCount();
+  }
+  
+  factory CartService() {
+    _instance ??= CartService._internal();
+    return _instance!;
+  }
+
+  Future<void> _initializeCartCount() async {
+    final count = await getCartItemCount();
+    cartItemCountNotifier.value = count;
+  }
+
+  void _updateCartCount() async {
+    final count = await getCartItemCount();
+    cartItemCountNotifier.value = count;
+  }
 
   Future<List<CartItem>> getCartItems() async {
     try {
@@ -87,6 +110,7 @@ class CartService {
     }
 
     await _saveCart(items);
+    _updateCartCount();
   }
 
   Future<void> removeFromCart(int productId, int storeId) async {
@@ -95,6 +119,7 @@ class CartService {
       (item) => item.productId == productId && item.storeId == storeId,
     );
     await _saveCart(items);
+    _updateCartCount();
   }
 
   Future<void> updateQuantity(int productId, int storeId, int quantity) async {
@@ -110,11 +135,13 @@ class CartService {
         items[index] = items[index].copyWith(quantity: quantity);
       }
       await _saveCart(items);
+      _updateCartCount();
     }
   }
 
   Future<void> clearCart() async {
     await _storage.delete(key: _cartKey);
+    _updateCartCount();
   }
 
   Future<int> getCartItemCount() async {

@@ -6,6 +6,7 @@ import 'package:choppi_app/config/app_config.dart';
 import 'package:choppi_app/views/store_products.dart';
 import 'package:choppi_app/views/cart.dart';
 import 'package:choppi_app/login.dart';
+import 'package:choppi_app/services/cart_service.dart';
 
 class Store {
   final int id;
@@ -77,6 +78,7 @@ class StoresWidget extends StatefulWidget {
 class _StoresWidgetState extends State<StoresWidget> {
   final TextEditingController _searchController = TextEditingController();
   final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final CartService _cartService = CartService();
   bool _isLoading = false;
   List<Store> _stores = [];
   String? _errorMessage;
@@ -195,10 +197,45 @@ class _StoresWidgetState extends State<StoresWidget> {
           tooltip: 'Cerrar sesión',
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: _navigateToCart,
-            tooltip: 'Carrito de compras',
+          ValueListenableBuilder<int>(
+            valueListenable: _cartService.cartItemCountNotifier,
+            builder: (context, count, child) {
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: _navigateToCart,
+                    tooltip: 'Carrito de compras',
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          count > 99 ? '99+' : count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),

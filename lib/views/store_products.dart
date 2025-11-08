@@ -170,23 +170,6 @@ class _StoreProductsState extends State<StoreProducts> {
       );
 
       await _cartService.addToCart(cartItem);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${product.name} agregado al carrito'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-            action: SnackBarAction(
-              label: 'Deshacer',
-              textColor: Colors.white,
-              onPressed: () async {
-                await _cartService.removeFromCart(product.id, widget.storeId);
-              },
-            ),
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -213,8 +196,6 @@ class _StoreProductsState extends State<StoreProducts> {
       final uri = Uri.parse(
         AppConfig.buildUrl('products/get-products-by-store/${widget.storeId}'),
       ).replace(queryParameters: queryParams);
-
-      print(uri);
 
       final headers = {
         'Content-Type': 'application/json',
@@ -265,10 +246,45 @@ class _StoreProductsState extends State<StoreProducts> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: _navigateToCart,
-            tooltip: 'Carrito de compras',
+          ValueListenableBuilder<int>(
+            valueListenable: _cartService.cartItemCountNotifier,
+            builder: (context, count, child) {
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: _navigateToCart,
+                    tooltip: 'Carrito de compras',
+                  ),
+                  if (count > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          count > 99 ? '99+' : count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ],
       ),
