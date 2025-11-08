@@ -442,7 +442,7 @@ class _StoreProductsState extends State<StoreProducts> {
                                   const SizedBox(height: 6),
                                   Expanded(
                                     child: Text(
-                                      product.description,
+                                      '${product.description.substring(0, 13)}...',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey.shade700,
